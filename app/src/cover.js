@@ -351,9 +351,20 @@ function drawBadgeRibbon(ctx, state, W, H, grade) {
   const px = Math.round(H * 0.024);
   ctx.save();
   ctx.font = `700 ${px}px system-ui, sans-serif`;
+  // On narrow covers (portrait / square) the full "BADGE • NEON COAST STUDIO"
+  // ribbon spans most of the width and sits across the top row's faces.
+  // Shortening it to the badge alone still covered the top-left man's eyes
+  // (verified on a 2x zoomed crop), so omit the ribbon entirely when the
+  // full pill would cover over half the cover width: the badge already
+  // appears as a pill in the title block, so the ribbon adds no identity
+  // here — only a face to cover. Landscape keeps the full ribbon.
   const label = `${state.badge.toUpperCase()}  •  NEON COAST STUDIO`;
   const tw = ctx.measureText(label).width;
   const padX = px * 1.1;
+  if (tw + padX * 2 > W * 0.5) {
+    ctx.restore();
+    return;
+  }
   ctx.fillStyle = 'rgba(12, 6, 24, 0.85)';
   ctx.beginPath();
   ctx.roundRect(Math.round(W * 0.03), Math.round(H * 0.03), tw + padX * 2, px * 2.2, px * 1.1);
